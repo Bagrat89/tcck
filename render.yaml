@@ -1,0 +1,41 @@
+services:
+  - type: web
+    name: tcck-map
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: APP_HOST
+        value: "0.0.0.0"
+      - key: APP_PORT
+        value: "8000"
+      - key: DEBUG
+        value: "false"
+      - key: LOCATION_TTL_SECONDS
+        value: "7200"
+      - key: CLEANUP_INTERVAL_SECONDS
+        value: "300"
+      - key: NOMINATIM_USER_AGENT
+        value: "tcck-map/1.0"
+      - key: DB_PATH
+        value: "/data/tcck_map.db"
+      # Секреты — вставляй вручную в Dashboard → Environment
+      - key: TELEGRAM_API_ID
+        sync: false
+      - key: TELEGRAM_API_HASH
+        sync: false
+      - key: TELEGRAM_PHONE
+        sync: false
+      - key: TELEGRAM_STRING_SESSION
+        sync: false
+      - key: TARGET_CHANNEL
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+    # Persistent disk (только платный план ~$7/мес)
+    # Без него БД и .session сбрасываются при редеплое
+    # disk:
+    #   name: tcck-map-data
+    #   mountPath: /data
+    #   sizeGB: 1

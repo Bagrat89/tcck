@@ -1,0 +1,255 @@
+/* ── CSS переменные ─────────────────────────────────────────────────────── */
+:root {
+  --bg:   #090b0d;
+  --sf:   #0f1318;
+  --sf2:  #161c22;
+  --bd:   #1e272f;
+  --bd2:  #253040;
+  --acc:  #ff2d2d;
+  --ag:   rgba(255,45,45,.18);
+  --ad:   rgba(255,45,45,.35);
+  --tx:   #c8d6e0;
+  --tx2:  #4e6070;
+  --grn:  #00e676;
+  --ylw:  #ffd740;
+  --org:  #ff7043;
+  --font: 'Share Tech Mono','Courier New',monospace;
+  --hh:   50px;
+  --bh:   32px;
+}
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--tx);
+  font-family: var(--font);
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+  /*
+    НЕ используем touch-action: manipulation на body/html —
+    это заблокирует pinch-zoom на карте.
+    touch-action задаётся только на #map ниже.
+  */
+}
+
+/* ── Карта ───────────────────────────────────────────────────────────────── */
+#map {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  /*
+    pan-x pan-y — разрешаем браузеру обрабатывать свайпы сам,
+    но Leaflet перехватывает события раньше через pointer events.
+    Это убирает 300ms задержку на мобильных без блокировки pinch-zoom.
+  */
+  touch-action: pan-x pan-y;
+}
+
+/* Тёмнее тайлы для контраста с красными маркерами */
+.leaflet-tile-pane { filter: brightness(.88) saturate(.7); }
+
+/* ── SVG-маркер ──────────────────────────────────────────────────────────── */
+.tcck-icon {
+  background: none !important;
+  border: none !important;
+  overflow: visible !important; /* пульсирующее кольцо выходит за 44px */
+}
+
+@keyframes markerEntry {
+  from { transform: scale(0) translateY(8px); opacity: 0; }
+  to   { transform: scale(1) translateY(0);   opacity: 1; }
+}
+
+/* ── HUD верхний ─────────────────────────────────────────────────────────── */
+#hud-top {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 900;
+  height: var(--hh);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  background: linear-gradient(to bottom, rgba(9,11,13,.97) 55%, transparent);
+  border-bottom: 1px solid var(--bd);
+  /* HUD не должен перехватывать тач-события карты */
+  pointer-events: none;
+}
+
+/* Кнопки/текст внутри HUD снова принимают события */
+#hud-top > * { pointer-events: auto; }
+
+#hud-logo {
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--acc);
+  flex-shrink: 0;
+}
+#hud-logo em { color: var(--tx2); font-style: normal; }
+
+#hud-div {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, var(--bd), transparent);
+}
+
+#status-text {
+  font-size: 11px;
+  letter-spacing: .06em;
+  white-space: nowrap;
+  transition: color .25s;
+  flex-shrink: 0;
+}
+.st-loading { color: var(--ylw); }
+.st-ok      { color: var(--grn); }
+.st-empty   { color: var(--tx2); }
+.st-error   { color: var(--acc); }
+
+#hud-clock {
+  font-size: 11px;
+  color: var(--tx2);
+  flex-shrink: 0;
+  min-width: 40px;
+  text-align: right;
+}
+
+/* ── Угловые скобки ─────────────────────────────────────────────────────── */
+.brkt {
+  position: absolute;
+  z-index: 800;
+  width: 14px; height: 14px;
+  pointer-events: none;
+}
+.brkt-tl { top:  calc(var(--hh) + 6px); left:  6px; border-top:    1px solid var(--ad); border-left:   1px solid var(--ad); }
+.brkt-tr { top:  calc(var(--hh) + 6px); right: 6px; border-top:    1px solid var(--ad); border-right:  1px solid var(--ad); }
+.brkt-bl { bottom: calc(var(--bh) + 6px); left:  6px; border-bottom: 1px solid var(--ad); border-left:   1px solid var(--ad); }
+.brkt-br { bottom: calc(var(--bh) + 6px); right: 6px; border-bottom: 1px solid var(--ad); border-right:  1px solid var(--ad); }
+
+/* ── Сканлайны ───────────────────────────────────────────────────────────── */
+#scanlines {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom, transparent 0, transparent 3px,
+    rgba(0,0,0,.06) 3px, rgba(0,0,0,.06) 4px
+  );
+}
+
+/* ── HUD нижний ─────────────────────────────────────────────────────────── */
+#hud-bottom {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  z-index: 900;
+  height: var(--bh);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 9px;
+  letter-spacing: .14em;
+  color: var(--tx2);
+  text-transform: uppercase;
+  background: linear-gradient(to top, rgba(9,11,13,.97) 60%, transparent);
+  border-top: 1px solid var(--bd);
+  pointer-events: none;
+}
+
+.pulse-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--acc);
+  flex-shrink: 0;
+  animation: dot-blink 2s step-start infinite;
+}
+@keyframes dot-blink { 0%,100% { opacity: 1; } 50% { opacity: .1; } }
+
+/* ── Leaflet controls ────────────────────────────────────────────────────── */
+.leaflet-control-zoom {
+  border: 1px solid var(--bd2) !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,.5) !important;
+}
+.leaflet-control-zoom a {
+  background: var(--sf) !important;
+  color: var(--tx) !important;
+  border-color: var(--bd2) !important;
+  font-size: 16px !important;
+  width: 36px !important;
+  height: 36px !important;
+  line-height: 36px !important;
+}
+.leaflet-control-zoom a:hover {
+  background: var(--sf2) !important;
+  color: var(--acc) !important;
+}
+.leaflet-control-attribution {
+  background: rgba(9,11,13,.75) !important;
+  color: var(--tx2) !important;
+  font-size: 9px !important;
+  padding: 2px 5px !important;
+}
+.leaflet-control-attribution a { color: var(--tx2) !important; }
+
+/* ── Попап ───────────────────────────────────────────────────────────────── */
+.tcck-popup .leaflet-popup-content-wrapper {
+  background: var(--sf);
+  border: 1px solid var(--bd2);
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgba(255,45,45,.08), 0 8px 32px rgba(0,0,0,.85);
+  padding: 0;
+  min-width: 230px;
+  max-width: 300px;
+}
+.tcck-popup .leaflet-popup-tip-container { display: none; }
+.tcck-popup .leaflet-popup-content { margin: 0; width: auto !important; }
+.tcck-popup .leaflet-popup-close-button {
+  color: var(--tx2) !important;
+  font-size: 18px !important;
+  top: 6px !important;
+  right: 8px !important;
+}
+
+.pu { padding: 12px 14px 10px; font-family: var(--font); font-size: 12px; line-height: 1.45; }
+.pu-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+.pu-badge {
+  font-size: 9px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--acc); background: var(--ag); border: 1px solid var(--ad);
+  padding: 1px 5px; border-radius: 2px;
+}
+.pu-time  { font-size: 10px; color: var(--tx2); }
+.pu-name  { font-size: 14px; font-weight: bold; color: var(--tx); margin-bottom: 6px; word-break: break-word; }
+.pu-msg   {
+  font-size: 11px; color: var(--tx2);
+  border-left: 2px solid var(--bd2); padding-left: 8px;
+  margin-bottom: 10px; max-height: 72px; overflow-y: auto;
+  word-break: break-word; white-space: pre-wrap;
+}
+.pu-bar   { height: 2px; background: var(--bd2); border-radius: 1px; margin-bottom: 6px; overflow: hidden; }
+.pu-fill  { height: 100%; border-radius: 1px; }
+.pu-meta  { display: flex; justify-content: space-between; font-size: 9px; color: var(--tx2); }
+.pu-ttl-warn { color: var(--org); }
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bd2); border-radius: 2px; }
+
+/* ── Мобильные поправки ──────────────────────────────────────────────────── */
+@media (max-width: 380px) {
+  :root { --hh: 44px; }
+  #hud-logo, #status-text, #hud-clock { font-size: 10px; }
+  .pu { padding: 10px 11px 8px; }
+  .pu-name { font-size: 13px; }
+}
+
+/* Уважаем prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .tcck-icon svg circle { animation: none !important; }
+  @keyframes markerEntry { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes dot-blink { 0%,100% { opacity: 1; } }
+}

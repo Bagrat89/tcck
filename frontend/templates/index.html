@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8"/>
+  <!--
+    ВАЖНО: user-scalable=no убрали — Telegram WebApp сам управляет масштабом.
+    maximum-scale=1.0 тоже убрали — иначе iOS блокирует pinch-to-zoom на карте.
+  -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#090b0d"/>
+  <title>ТЦК Карта — Одеса</title>
+
+  <link rel="preconnect" href="https://basemaps.cartocdn.com"/>
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap"
+        media="print" onload="this.media='all'"/>
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"
+        crossorigin="anonymous"/>
+  <link rel="stylesheet" href="/static/css/map.css"/>
+</head>
+<body>
+
+<div id="map"></div>
+<div id="scanlines" aria-hidden="true"></div>
+
+<div class="brkt brkt-tl" aria-hidden="true"></div>
+<div class="brkt brkt-tr" aria-hidden="true"></div>
+<div class="brkt brkt-bl" aria-hidden="true"></div>
+<div class="brkt brkt-br" aria-hidden="true"></div>
+
+<header id="hud-top">
+  <span id="hud-logo">ТЦК <em>/</em> ОДЕСА</span>
+  <div id="hud-div" aria-hidden="true"></div>
+  <span id="status-text" class="st-loading" role="status" aria-live="polite">⟳ Завантаження…</span>
+  <span id="hud-clock"></span>
+</header>
+
+<footer id="hud-bottom">
+  <div class="pulse-dot" aria-hidden="true"></div>
+  <span>LIVE · ОНОВЛЕННЯ 15С · АКТИВНІ 2Г</span>
+</footer>
+
+<!-- Telegram WebApp SDK — подключать ДО других скриптов -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" crossorigin="anonymous"></script>
+<script src="/static/js/api.js"></script>
+<script src="/static/js/map.js"></script>
+<script>
+  // Часы в HUD
+  (function () {
+    var el = document.getElementById('hud-clock');
+    function tick() {
+      el.textContent = new Date().toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
+    }
+    tick();
+    setInterval(tick, 10000);
+  })();
+</script>
+</body>
+</html>
